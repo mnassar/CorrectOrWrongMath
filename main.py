@@ -314,8 +314,7 @@ class game(tk.Tk):
                                   + " correct answers",
                  font=("Lucida Grande", 30), fg='blue').pack()
         update_scoreboard(self.username, correct_values, self.scoreboard)
-        tk.Label(self.frame, text="You got " + str(self.nb_total -
-                                                   self.nb_correct[self.curr_mode]) + " wrong answers in total",
+        tk.Label(self.frame, text="You got " + str(self.nb_total) + " questions in total",
                  font=("Lucida Grande", 30), fg='brown').pack()
         t_end = time.time()
         minutes = (t_end - self.t_start) // 60
@@ -330,7 +329,7 @@ class game(tk.Tk):
 
     def play(self):
         if self.musicPlaying == False:
-            filename = 'stranger-things-124008.wav'
+            filename = 'No Indication.wav'
             winsound.PlaySound(filename, winsound.SND_ASYNC) # + winsound.SND_LOOP)
             self.musicPlaying = True
         else:
