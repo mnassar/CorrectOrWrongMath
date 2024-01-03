@@ -1,16 +1,13 @@
 import tkinter as tk
+from tkinter import messagebox
 from PIL import Image, ImageTk
 from scoreboard import *
-# import simpleaudio as sa
 import winsound
 import re
 import math
-
-
-# import tkinter.font as tkFont
-
 import random
 import time
+import logging
 
 class game(tk.Tk):
     def __init__(self):
@@ -99,7 +96,7 @@ class game(tk.Tk):
 
         self.startButton = tk.Button(text="start", background='yellow', command=self.run, width=10, height=3, font=("Courrier", 30))
         self.startButton.pack()
-
+                
         self.settingsImg = tk.PhotoImage(file="settings.gif").subsample(3,3)
         self.settingsButton = tk.Button(image=self.settingsImg, command=self.settings)
         self.settingsButton.place(relx=0, rely=1, anchor='sw')
@@ -115,23 +112,26 @@ class game(tk.Tk):
         self.quitButton = tk.Button(text="Quit", background='green', foreground='purple', command=self.quit, width=7, height=2,
                                     font=("Courrier", 20), anchor=tk.CENTER)
         self.quitButton.place(relx=0.5, rely=0.8)
+        logging.debug('end of _init_')
+
     def writeYourOwn(self):
 
         self.equation = tk.Entry(font=("Courrier", 30))
         self.equation.place(relx=0, rely=0.5)
         self.equation.focus_set()
         self.equation.bind('<Return>', self.setEquation)
+        logging.debug('end of writeYorOwn')
 
     def setUsername(self, event):
         self.username = event.widget.get()
-        print (self.username)
+        logging.info('Current User=' + self.username)
         if not self.username in self.scoreboard:
             self.scoreboard[self.username] = 0
         self.usernameEntry.destroy()
         self.usernameLabel.destroy()
         self.usernameLabel = tk.Label(self, text = "*" + self.username + "*", font=("Lucida", 20), background="black", foreground="white")
         self.usernameLabel.place(relx=0.9, rely=0.9, anchor='nw')
-
+        logging.debug('end of setUsername')
 
     def setEquation(self, event):
         ans = event.widget.get()
@@ -153,6 +153,7 @@ class game(tk.Tk):
             # self.ansTextBox.unbind('<Return>')
             self.ansTextBox.bind('<Return>', lambda event: self.show_msg(event, x, y, z, op))
             self.equation.destroy()
+            logging.debug('end of setEquation')
 
 
     def settings(self):
@@ -175,6 +176,7 @@ class game(tk.Tk):
         self.scrollbar.pack(side=tk.LEFT, fill=tk.BOTH)
         self.settings.pack(side=tk.LEFT)
         self.settings.bind('<<ListboxSelect>>', self.changeMode)
+        logging.debug('end of settings')
 
     def changeMode(self, event):
         self.mode = self.settings.curselection()
@@ -189,8 +191,7 @@ class game(tk.Tk):
         self.settings = None
         if self.started:
             self.run1()
-
-        # self.settings.destroy()
+        logging.debug('end of changeMod')
 
     def achievement(self, msg, text):
         if self.achievementFr != None:
@@ -204,8 +205,12 @@ class game(tk.Tk):
         self.after(5000, self.disappear)
         self.frame = tk.Frame()
         self.frame.pack()
+        logging.debug('end of achievement')
+   
     def disappear(self):
         self.achievementFr.destroy()
+        logging.debug('end of disappear')
+        
     def show_msg(self, event, x, y, z, op):
         # ans = event.widget.get("1.0", "end-1c")
         ans = event.widget.get()
@@ -245,10 +250,10 @@ class game(tk.Tk):
             self.run1()
         except:
             pass
-
+        logging.debug('end of show_msg')
 
     def run(self):
-        self.startButton.destroy()
+        self.startButton.destroy()  
         self.started=True
         self.t_start = time.time()
         x, y, z, op = self.generate_question()
@@ -267,7 +272,7 @@ class game(tk.Tk):
         # self.WriteYourOwnQ = tk.Button(text="Write your \n own question!", background='gray', font=("Courrier",20),
         #                                width=12, anchor='w', command=self.writeYourOwn)
         # self.WriteYourOwnQ.place(relx=0, rely=0.4)
-
+        logging.debug('end of run')
 
     def run1(self):
         x, y, z, op = self.generate_question()
@@ -276,8 +281,6 @@ class game(tk.Tk):
 
         self.nb_total += 1
         # self.ansTextBox.delete('1.0', tk.END)
-
-
         self.ansTextBoxBindID = self.ansTextBox.bind('<Return>', lambda event: self.show_msg(event, x, y, z, op))
         self.focus_set()
         self.frame.focus_set()
@@ -286,12 +289,12 @@ class game(tk.Tk):
         self.ansTextBox.delete(0, tk.END)
         self.ansTextBox.icursor(0)
         print(self.focus_get())
+        logging.debug('end of run1')
+
     def generate_question(self):
         z = random.randrange(1,self.limit)
         y = random.randrange(1,self.limit)
         choice = random.randrange(1,6)
-
-
         if choice == 1:
             return z, y, z-y, "+"
         elif choice == 2:
@@ -303,10 +306,11 @@ class game(tk.Tk):
         else:
             x = int(math.sqrt(z))
             return x, ")", "sqrt(", str(x * x)
-
+        logging.debug('end of generate_question')
+    
     def quit(self):
         if self.quitted:
-            return
+            return            
         self.quitted = True
         self.nb_total -= 1
         correct_values = sum(self.nb_correct.values())
@@ -322,11 +326,14 @@ class game(tk.Tk):
         tk.Label(self.frame, text="Total time: {} minutes and {:.2f} seconds!".format(minutes, seconds),
                  font=("Lucida Grande", 30), fg='blue').pack()
         tk.Label(self.frame, text="Thank you for playing! Good bye!", font=("Lucida Grande", 20), fg='brown').pack()
-        self.question.destroy()
-        self.ansTextBox.destroy()
-        self.congratz.destroy()
-        # input("Press any key to exit!")
 
+        self.quitGameMessage()
+        logging.debug('end of quit') 
+
+    def quitGameMessage(self):
+        showMessageBox("CorrectOrWrongMath","Thank you for playing! Good bye!")
+        g.destroy()      
+    
     def play(self):
         if self.musicPlaying == False:
             filename = 'No Indication.wav'
@@ -335,16 +342,25 @@ class game(tk.Tk):
         else:
             winsound.PlaySound(None, winsound.SND_PURGE)
             self.musicPlaying = False
+        logging.debug('end of play')
 
+def showMessageBox( title, message):
+    messagebox.showinfo(title, message)
 
+def initLogging():
+    FORMAT = "%(asctime)s — %(name)s — %(levelname)s — %(funcName)s:%(lineno)d — %(message)s"
+    logging.basicConfig(format=FORMAT)
+    logging.getLogger().setLevel(logging.DEBUG)
 
 if __name__ == '__main__':
-
+    initLogging()
     # wave_obj = sa.WaveObject.from_wave_file(filename)
     # play_obj = wave_obj.play()
     g = game()
-
+    g.t_start = time.time()
     g.mainloop()
+    logging.debug('after mainloop')
+    
     # play_obj.wait_done()  # Wait until sound has finished playing
 
 # TODO
